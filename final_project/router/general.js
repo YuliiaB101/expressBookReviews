@@ -121,36 +121,6 @@ public_users.get('/internal/books', (req, res) => {
     return res.json(books);
 });
 
-// // Get book details by ISBN
-// public_users.get('/isbn/:isbn', (req, res) => {
-//     const { isbn } = req.params;
-//     const book = books[isbn];
-//     if (!book) {
-//         return res.status(404).json({ message: `There is no book with ISBN = ${isbn}` });
-//     }
-//     return res.status(200).json(book);
-// });
-
-// // Get books by author
-// public_users.get('/author/:author', (req, res) => {
-//     const { author } = req.params;
-//     const filtered_books = Object.values(books).filter(b => b.author.toLowerCase() === author.toLowerCase());
-//     if (filtered_books.length === 0) {
-//         return res.status(404).json({ message: `There are no books by author = ${author}` });
-//     }
-//     return res.status(200).json(filtered_books);
-// });
-
-// // Get books by title
-// public_users.get('/title/:title', (req, res) => {
-//     const { title } = req.params;
-//     const filtered_books = Object.values(books).filter(b => b.title.toLowerCase() === title.toLowerCase());
-//     if (filtered_books.length === 0) {
-//         return res.status(404).json({ message: `There are no books by title = ${title}` });
-//     }
-//     return res.status(200).json(filtered_books);
-// });
-
 // Get book reviews
 public_users.get('/review/:isbn', (req, res) => {
     const { isbn } = req.params;
