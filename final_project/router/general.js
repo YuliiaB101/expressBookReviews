@@ -88,6 +88,34 @@ public_users.get('/author/:author', async (req, res) => {
     }
 });
 
+// Async/Axios endpoint: Get book details by Title
+public_users.get('/title/:title', async (req, res) => {
+    const { title } = req.params;
+    const baseURL = getBaseURL(req);
+
+    try {
+        // Fetch all books using Axios
+        const response = await axios.get(`${baseURL}/internal/books`);
+        const allBooks = response.data;
+
+        // Filter books by title (case-insensitive)
+        const filteredBooks = Object.values(allBooks).filter(
+            b => b.title.toLowerCase() === title.toLowerCase()
+        );
+
+        if (filteredBooks.length === 0) {
+            return res.status(404).json({
+                message: `There are no books with title = ${title}`
+            });
+        }
+
+        return res.status(200).json(filteredBooks);
+    } catch (error) {
+        console.error(error.message);
+        return res.status(500).json({ message: "Error fetching books by title" });
+    }
+});
+
 // Internal endpoint for Axios to fetch all books
 public_users.get('/internal/books', (req, res) => {
     return res.json(books);
@@ -113,15 +141,15 @@ public_users.get('/internal/books', (req, res) => {
 //     return res.status(200).json(filtered_books);
 // });
 
-// Get books by title
-public_users.get('/title/:title', (req, res) => {
-    const { title } = req.params;
-    const filtered_books = Object.values(books).filter(b => b.title.toLowerCase() === title.toLowerCase());
-    if (filtered_books.length === 0) {
-        return res.status(404).json({ message: `There are no books by title = ${title}` });
-    }
-    return res.status(200).json(filtered_books);
-});
+// // Get books by title
+// public_users.get('/title/:title', (req, res) => {
+//     const { title } = req.params;
+//     const filtered_books = Object.values(books).filter(b => b.title.toLowerCase() === title.toLowerCase());
+//     if (filtered_books.length === 0) {
+//         return res.status(404).json({ message: `There are no books by title = ${title}` });
+//     }
+//     return res.status(200).json(filtered_books);
+// });
 
 // Get book reviews
 public_users.get('/review/:isbn', (req, res) => {
