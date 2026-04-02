@@ -60,6 +60,34 @@ public_users.get('/isbn/:isbn', async (req, res) => {
     }
 });
 
+// Async/Axios endpoint: Get book details by author
+public_users.get('/author/:author', async (req, res) => {
+    const { author } = req.params;
+    const baseURL = getBaseURL(req);
+
+    try {
+        // Fetch all books using Axios (simulating async API call)
+        const response = await axios.get(`${baseURL}/internal/books`);
+        const allBooks = response.data;
+
+        // Filter books by author (case-insensitive)
+        const filteredBooks = Object.values(allBooks).filter(
+            b => b.author.toLowerCase() === author.toLowerCase()
+        );
+
+        if (filteredBooks.length === 0) {
+            return res.status(404).json({
+                message: `There are no books by author = ${author}`
+            });
+        }
+
+        return res.status(200).json(filteredBooks);
+    } catch (error) {
+        console.error(error.message);
+        return res.status(500).json({ message: "Error fetching books by author" });
+    }
+});
+
 // Internal endpoint for Axios to fetch all books
 public_users.get('/internal/books', (req, res) => {
     return res.json(books);
@@ -75,15 +103,15 @@ public_users.get('/internal/books', (req, res) => {
 //     return res.status(200).json(book);
 // });
 
-// Get books by author
-public_users.get('/author/:author', (req, res) => {
-    const { author } = req.params;
-    const filtered_books = Object.values(books).filter(b => b.author.toLowerCase() === author.toLowerCase());
-    if (filtered_books.length === 0) {
-        return res.status(404).json({ message: `There are no books by author = ${author}` });
-    }
-    return res.status(200).json(filtered_books);
-});
+// // Get books by author
+// public_users.get('/author/:author', (req, res) => {
+//     const { author } = req.params;
+//     const filtered_books = Object.values(books).filter(b => b.author.toLowerCase() === author.toLowerCase());
+//     if (filtered_books.length === 0) {
+//         return res.status(404).json({ message: `There are no books by author = ${author}` });
+//     }
+//     return res.status(200).json(filtered_books);
+// });
 
 // Get books by title
 public_users.get('/title/:title', (req, res) => {
