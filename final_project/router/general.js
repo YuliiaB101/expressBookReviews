@@ -35,15 +35,45 @@ public_users.get('/', async (req, res) => {
     }
 });
 
-// Get book details by ISBN
-public_users.get('/isbn/:isbn', (req, res) => {
+// Async/Axios endpoint for getting book by ISBN
+public_users.get('/isbn/:isbn', async (req, res) => {
     const { isbn } = req.params;
-    const book = books[isbn];
-    if (!book) {
-        return res.status(404).json({ message: `There is no book with ISBN = ${isbn}` });
+    const baseURL = getBaseURL(req);
+
+    try {
+        // Using Axios to call internal endpoint (simulating async fetch)
+        const response = await axios.get(`${baseURL}/internal/books`);
+        const allBooks = response.data;
+
+        const book = allBooks[isbn];
+
+        if (!book) {
+            return res.status(404).json({
+                message: `There is no book with ISBN = ${isbn}`
+            });
+        }
+
+        return res.status(200).json(book);
+    } catch (error) {
+        console.error(error.message);
+        return res.status(500).json({ message: "Error fetching book details" });
     }
-    return res.status(200).json(book);
 });
+
+// Internal endpoint for Axios to fetch all books
+public_users.get('/internal/books', (req, res) => {
+    return res.json(books);
+});
+
+// // Get book details by ISBN
+// public_users.get('/isbn/:isbn', (req, res) => {
+//     const { isbn } = req.params;
+//     const book = books[isbn];
+//     if (!book) {
+//         return res.status(404).json({ message: `There is no book with ISBN = ${isbn}` });
+//     }
+//     return res.status(200).json(book);
+// });
 
 // Get books by author
 public_users.get('/author/:author', (req, res) => {
