@@ -3,41 +3,76 @@ let books = require("./booksdb.js");
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
+const axios = require('axios');
 
+// Register a new user
+public_users.post("/register", (req, res) => {
+    const { username, password } = req.body;
 
-public_users.post("/register", (req,res) => {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+    if (!username || !password) {
+        return res.status(400).json({ message: "Please provide username and password" });
+    }
+
+    if (isValid(username)) {
+        return res.status(409).json({ message: "User already exists" });
+    }
+
+    users.push({ username, password });
+    return res.status(201).json({ message: "User registered successfully" });
 });
 
-// Get the book list available in the shop
-public_users.get('/',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+// Function to get dynamic base URL
+const getBaseURL = (req) => `${req.protocol}://${req.get('host')}`;
+
+// Get list of all books using async/await with axios
+public_users.get('/', async (req, res) => {
+    try {
+        return res.status(200).json(books);
+
+    } catch (error) {
+        console.error(error.message);
+        return res.status(500).json({ message: "Error fetching books" });
+    }
 });
 
-// Get book details based on ISBN
-public_users.get('/isbn/:isbn',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
- });
-  
-// Get book details based on author
-public_users.get('/author/:author',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+// Get book details by ISBN
+public_users.get('/isbn/:isbn', (req, res) => {
+    const { isbn } = req.params;
+    const book = books[isbn];
+    if (!book) {
+        return res.status(404).json({ message: `There is no book with ISBN = ${isbn}` });
+    }
+    return res.status(200).json(book);
 });
 
-// Get all books based on title
-public_users.get('/title/:title',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+// Get books by author
+public_users.get('/author/:author', (req, res) => {
+    const { author } = req.params;
+    const filtered_books = Object.values(books).filter(b => b.author.toLowerCase() === author.toLowerCase());
+    if (filtered_books.length === 0) {
+        return res.status(404).json({ message: `There are no books by author = ${author}` });
+    }
+    return res.status(200).json(filtered_books);
 });
 
-//  Get book review
-public_users.get('/review/:isbn',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+// Get books by title
+public_users.get('/title/:title', (req, res) => {
+    const { title } = req.params;
+    const filtered_books = Object.values(books).filter(b => b.title.toLowerCase() === title.toLowerCase());
+    if (filtered_books.length === 0) {
+        return res.status(404).json({ message: `There are no books by title = ${title}` });
+    }
+    return res.status(200).json(filtered_books);
+});
+
+// Get book reviews
+public_users.get('/review/:isbn', (req, res) => {
+    const { isbn } = req.params;
+    const book = books[isbn];
+    if (!book) {
+        return res.status(404).json({ message: `There is no book with ISBN = ${isbn}` });
+    }
+    return res.status(200).json(book.reviews || {});
 });
 
 module.exports.general = public_users;
